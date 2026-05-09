@@ -29,9 +29,9 @@ class Button extends Component
     private function variantClasses(): string
     {
         return match ($this->type) {
-            'secondary' => 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2',
-            'danger' => 'inline-flex items-center justify-center gap-2 rounded-lg border border-rose-600 bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:border-rose-700 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2',
-            default => 'inline-flex items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:border-sky-700 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2',
+            'secondary' => 'btn btn-outline-secondary btn-sm',
+            'danger' => 'btn btn-danger btn-sm',
+            default => 'btn btn-primary btn-sm',
         };
     }
 }

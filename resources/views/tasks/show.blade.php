@@ -8,69 +8,147 @@
     $doneSub = collect($subtasks)->where('completed', true)->count();
 @endphp
 
-<div class="mx-auto max-w-3xl">
-    <div class="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <a href="{{ route('tasks.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition hover:text-slate-700">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            Back to Tasks
-        </a>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('tasks.edit', $task->id) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">
-                Edit Task
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{ route('tasks.index') }}" class="btn btn-outline-secondary btn-sm">Back to Tasks</a>
+        <div>
+            <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-outline-primary btn-sm">
+                Edit
             </a>
         </div>
     </div>
 
-    <div class="rounded-3xl">
-        <div class="mb-8 border-b border-slate-100 pb-8">
-            <div class="mb-4 flex items-center gap-3">
-                <span class="inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide {{ $task->completed ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
-                    {{ ucfirst($task->status ?? 'Active') }}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge {{ ($task->status ?? 'to-do') === 'done' ? 'text-bg-success' : (($task->status ?? 'to-do') === 'in_progress' ? 'text-bg-primary' : 'text-bg-secondary') }}">
+                    {{ $task->status ?? 'to-do' }}
                 </span>
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">#{{ $task->id }}</span>
+                <span class="badge text-bg-light">#{{ $task->id }}</span>
             </div>
-            <h1 class="mb-4 text-3xl font-black tracking-tight text-slate-900">{{ $task->title }}</h1>
-            <div class="rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">
+            <h3 class="fw-bold">{{ $task->title }}</h3>
+            <div class="bg-light rounded p-3 text-muted">
                 {{ $task->description ?? 'No description.' }}
             </div>
         </div>
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                <p class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Priority</p>
-                <p class="text-sm font-semibold capitalize text-slate-800">{{ $task->priority }}</p>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                <p class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Due Date</p>
-                <p class="text-sm font-semibold text-slate-800">{{ $task->due_date ? (\Carbon\Carbon::parse($task->due_date)->format('M d, Y')) : 'None' }}</p>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                <p class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Board / Order</p>
-                <p class="text-sm font-semibold text-slate-800">{{ $task->board_column ?? 'Backlog' }} ({{ $task->order ?? '0' }})</p>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                <p class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Project</p>
-                <p class="text-sm font-semibold text-slate-800">#{{ $task->project_id ?? 'N/A' }}</p>
-            </div>
-        </div>
-
-        @if($totalSub > 0)
-        <div class="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <div class="mb-4 flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Subtasks</h3>
-                <span class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-500">{{ $doneSub }}/{{ $totalSub }}</span>
-            </div>
-            <div class="space-y-3">
-                @foreach($subtasks as $sub)
-                <div class="group flex items-center gap-3 rounded-lg bg-white px-3 py-2">
-                    <div class="h-4 w-4 rounded-full border-2 transition-colors {{ ($sub['completed'] ?? false) ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 group-hover:border-slate-400' }}"></div>
-                    <span class="text-sm {{ ($sub['completed'] ?? false) ? 'text-slate-400 line-through' : 'font-medium text-slate-700' }}">{{ $sub['title'] ?? 'Untitled' }}</span>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
     </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted d-block">Priority</small>
+                    <strong>{{ ucfirst($task->priority) }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted d-block">Due Date</small>
+                    <strong>{{ $task->due_date ? (\Carbon\Carbon::parse($task->due_date)->format('M d, Y')) : 'None' }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted d-block">Board / Order</small>
+                    <strong>{{ $task->board_column ?? 'Backlog' }} ({{ $task->order ?? '0' }})</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted d-block">Creator</small>
+                    <strong>{{ $task->creator ?? 'N/A' }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted d-block">Assignee</small>
+                    <strong>{{ $task->assignee?->name ?? 'N/A' }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if($totalSub > 0)
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">Subtasks</h6>
+                    <span class="badge text-bg-secondary">{{ $doneSub }}/{{ $totalSub }}</span>
+                </div>
+                <ul class="list-group">
+                    @foreach($subtasks as $sub)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="{{ ($sub['completed'] ?? false) ? 'text-decoration-line-through text-muted' : '' }}">
+                                {{ $sub['title'] ?? 'Untitled' }}
+                            </span>
+                            <span class="badge {{ ($sub['completed'] ?? false) ? 'text-bg-success' : 'text-bg-light' }}">
+                                {{ ($sub['completed'] ?? false) ? 'Done' : 'Open' }}
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">Comments</h5>
+            <form method="POST" action="{{ route('tasks.comments.store', $task->id) }}" class="mb-4">
+                @csrf
+                <div class="mb-3">
+                    <label for="user_id" class="form-label">Commenter</label>
+                    <select id="user_id" name="user_id" class="form-select @error('user_id') is-invalid border-danger @enderror">
+                        <option value="" selected disabled>Select user</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}" {{ (int) old('user_id') === (int) $user->id ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('user_id')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="body" class="form-label">Comment</label>
+                    <textarea id="body" name="body" rows="3" class="form-control @error('body') is-invalid border-danger @enderror">{{ old('body') }}</textarea>
+                    @error('body')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Add Comment
+                </button>
+            </form>
+
+            <div class="d-grid gap-2">
+                @forelse ($task->taskComments as $comment)
+                    <div class="border rounded p-3 bg-light">
+                        <p class="fw-semibold mb-1">{{ $comment->user?->name ?? 'Unknown user' }}</p>
+                        <p class="mb-0 text-muted">{{ $comment->body }}</p>
+                    </div>
+                @empty
+                    <p class="text-muted mb-0">No comments yet.</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 @endsection

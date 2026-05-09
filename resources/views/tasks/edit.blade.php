@@ -1,69 +1,108 @@
 @extends('layout.app')
 
 @section('content')
-    <div class="mx-auto max-w-3xl">
-        <div class="mb-8 flex items-center justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Task Editor</p>
-                <h1 class="mt-1 text-3xl font-black tracking-tight text-slate-900">Edit Task #{{ $task->id }}</h1>
-                <p class="mt-2 text-sm text-slate-500">Update task details and keep your board organized.</p>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1">Edit Task #{{ $task->id }}</h4>
+                        <p class="text-muted mb-0">Update details for this todo item.</p>
+                    </div>
+                    <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-outline-secondary btn-sm">View Task</a>
+                </div>
+
+                <form method="POST" action="{{ route('tasks.update', $task->id) }}">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control @error('title') is-invalid border-danger @enderror" id="title" name="title" value="{{ old('title', $task->title) }}" required>
+                        @error('title')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control @error('description') is-invalid border-danger @enderror" id="description" name="description" rows="4">{{ old('description', $task->description) }}</textarea>
+                        @error('description')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="creator_id" class="form-label">Creator</label>
+                            <select id="creator_id" name="creator_id" class="form-select @error('creator_id') is-invalid border-danger @enderror" required>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}" {{ (int) old('creator_id', $task->creator_id) === (int) $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('creator_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="assignee_id" class="form-label">Assignee</label>
+                            <select id="assignee_id" name="assignee_id" class="form-select @error('assignee_id') is-invalid border-danger @enderror" required>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}" {{ (int) old('assignee_id', $task->assignee_id) === (int) $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('assignee_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="due_date" class="form-label">Due Date</label>
+                            <input type="date" class="form-control @error('due_date') is-invalid border-danger @enderror" id="due_date" name="due_date" value="{{ old('due_date', $task->due_date ?? '') }}">
+                            @error('due_date')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select @error('priority') is-invalid border-danger @enderror" id="priority" name="priority">
+                                <option value="low" {{ old('priority', $task->priority ?? '') == 'low' ? 'selected' : '' }}>Low</option>
+                                <option value="medium" {{ old('priority', $task->priority ?? '') == 'medium' ? 'selected' : '' }}>Medium</option>
+                                <option value="high" {{ old('priority', $task->priority ?? '') == 'high' ? 'selected' : '' }}>High</option>
+                                <option value="urgent" {{ old('priority', $task->priority ?? '') == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                            </select>
+                            @error('priority')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select @error('status') is-invalid border-danger @enderror" id="status" name="status">
+                            <option value="to-do" {{ old('status', $task->status ?? '') == 'to-do' ? 'selected' : '' }}>To Do</option>
+                            <option value="in_progress" {{ old('status', $task->status ?? '') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="done" {{ old('status', $task->status ?? '') == 'done' ? 'selected' : '' }}>Done</option>
+                        </select>
+                        @error('status')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ route('tasks.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Task</button>
+                    </div>
+                </form>
             </div>
-            <a href="{{ route('tasks.show', $task->id) }}" class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">
-                View Task
-            </a>
         </div>
-
-        <form method="POST" action="{{ route('tasks.update', $task->id) }}" class="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            @csrf
-            @method('PUT')
-
-            <div class="space-y-2">
-                <label for="title" class="block text-sm font-semibold text-slate-700">Title</label>
-                <input type="text" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" id="title" name="title" value="{{ $task->title }}" required>
-            </div>
-
-            <div class="space-y-2">
-                <label for="description" class="block text-sm font-semibold text-slate-700">Description</label>
-                <textarea class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" id="description" name="description" rows="5">{{ $task->description }}</textarea>
-            </div>
-
-            <div class="space-y-2">
-                <label for="user_id" class="block text-sm font-semibold text-slate-700">Assigned To</label>
-                <select id="user_id" name="user_id" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" required>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}" {{ (int) $task->user_id === (int) $user->id ? 'selected' : '' }}>
-                            {{ $user->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label for="due_date" class="block text-sm font-semibold text-slate-700">Due Date</label>
-                    <input type="date" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" id="due_date" name="due_date" value="{{ $task->due_date ?? '' }}">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div class="space-y-2">
-                    <label for="priority" class="block text-sm font-semibold text-slate-700">Priority</label>
-                    <select class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" id="priority" name="priority">
-                        <option value="high" {{ ($task->priority ?? '') == 'high' ? 'selected' : '' }}>High</option>
-                        <option value="medium" {{ ($task->priority ?? '') == 'medium' ? 'selected' : '' }}>Medium</option>
-                        <option value="low" {{ ($task->priority ?? '') == 'low' ? 'selected' : '' }}>Low</option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label for="board_column" class="block text-sm font-semibold text-slate-700">Board Column</label>
-                    <input type="text" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" id="board_column" name="board_column" value="{{ $task->board_column ?? '' }}">
-                </div>
-            </div>
-
-            <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
-                <x-button href="{{ route('tasks.index') }}" type="secondary" button-type="button">Cancel</x-button>
-                <x-button type="primary">Update Task</x-button>
-            </div>
-        </form>
     </div>
+</div>
 @endsection

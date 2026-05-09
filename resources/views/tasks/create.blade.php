@@ -1,69 +1,100 @@
 @extends('layout.app')
 
 @section('content')
-<div class="mx-auto max-w-xl">
-    <div class="mb-8 text-center">
-        <h1 class="text-3xl font-black tracking-tight text-slate-900">New Task</h1>
-        <p class="mt-1 text-sm text-slate-500">Add a new objective to your workflow.</p>
-    </div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-1">Create New Task</h4>
+                <p class="text-muted mb-4">Plan your next todo with full details.</p>
 
-    <div class="rounded-[2.5rem]">
-        <form method="POST" action="{{ route('tasks.store') }}" class="space-y-6">
-            @csrf
-            
-            <div class="space-y-1">
-                <label for="title" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">Title</label>
-                <input type="text" id="title" name="title" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 placeholder-slate-300 transition focus:bg-slate-100 focus:ring-0" placeholder="e.g. Project Launch" required>
-            </div>
+                <form method="POST" action="{{ route('tasks.store') }}">
+                    @csrf
 
-            <div class="space-y-1">
-                <label for="description" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">Description</label>
-                <textarea id="description" name="description" rows="4" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 placeholder-slate-300 transition focus:bg-slate-100 focus:ring-0" placeholder="Describe the task..."></textarea>
-            </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-control @error('title') is-invalid border-danger @enderror" placeholder="e.g. Project launch" required>
+                        @error('title')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label for="user_id" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">Assigned To</label>
-                    <select id="user_id" name="user_id" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition focus:bg-slate-100 focus:ring-0">
-                        <option value="" selected disabled>Select User</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="space-y-1">
-                    <label for="due_date" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">Due Date</label>
-                    <input type="date" id="due_date" name="due_date" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition focus:bg-slate-100 focus:ring-0">
-                </div>
-            </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" name="description" rows="4" class="form-control @error('description') is-invalid border-danger @enderror" placeholder="Describe the task...">{{ old('description') }}</textarea>
+                        @error('description')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label for="priority" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">Priority</label>
-                    <select id="priority" name="priority" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition focus:bg-slate-100 focus:ring-0">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-                <div class="space-y-1">
-                    <label for="status" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">Status</label>
-                    <select id="status" name="status" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition focus:bg-slate-100 focus:ring-0">
-                        <option value="open">Open</option>
-                        <option value="pending">Pending</option>
-                        <option value="reviewing">Reviewing</option>
-                        <option value="closed">Closed</option>
-                    </select>
-                </div>
-            </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="creator_id" class="form-label">Creator</label>
+                            <select id="creator_id" name="creator_id" class="form-select @error('creator_id') is-invalid border-danger @enderror">
+                                <option value="" selected disabled>Select user</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('creator_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('creator_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="assignee_id" class="form-label">Assignee</label>
+                            <select id="assignee_id" name="assignee_id" class="form-select @error('assignee_id') is-invalid border-danger @enderror">
+                                <option value="" selected disabled>Select user</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('assignee_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('assignee_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
 
-            <div class="flex items-center justify-end gap-3">
-                <a href="{{ route('tasks.index') }}" class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">Cancel</a>
-                <button type="submit" class="inline-flex items-center justify-center rounded-lg border border-slate-900 bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-slate-100 active:scale-[0.98]">
-                    Create Task
-                </button>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="due_date" class="form-label">Due Date</label>
+                            <input type="date" id="due_date" name="due_date" value="{{ old('due_date') }}" class="form-control @error('due_date') is-invalid border-danger @enderror">
+                            @error('due_date')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select id="priority" name="priority" class="form-select @error('priority') is-invalid border-danger @enderror">
+                                <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>Low</option>
+                                <option value="medium" {{ old('priority', 'medium') === 'medium' ? 'selected' : '' }}>Medium</option>
+                                <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
+                                <option value="urgent" {{ old('priority') === 'urgent' ? 'selected' : '' }}>Urgent</option>
+                            </select>
+                            @error('priority')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-select @error('status') is-invalid border-danger @enderror">
+                            <option value="to-do" {{ old('status', 'to-do') === 'to-do' ? 'selected' : '' }}>To Do</option>
+                            <option value="in_progress" {{ old('status') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="done" {{ old('status') === 'done' ? 'selected' : '' }}>Done</option>
+                        </select>
+                        @error('status')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ route('tasks.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Task</button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 @endsection

@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Tasks;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller     
 {
     public function index()
     {
-        $tasks = Tasks::withTrashed()->with('user')->latest()->paginate(10);
+        $tasks = Tasks::withTrashed()
+            ->with(['creator', 'assignee', 'taskComments.user'])
+            ->latest()
+            ->paginate(10);
         return view("tasks.index", ["tasks" => $tasks]);
     }
 
@@ -20,62 +24,62 @@ class TaskController extends Controller
         return view("tasks.create", compact('users'));
     }
 
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
-            'assigned_to' => 'nullable|string|max:255',
-            'due_date' => 'nullable|date',
-            'priority' => 'nullable|in:low,medium,high',
-            'status' => 'nullable|in:open,pending,reviewing,closed',
-            'board_column' => 'nullable|string|max:255',
+        $validated = $request->validated();
+        $creator = User::find($validated['creator_id']);
+        $assignee = User::find($validated['assignee_id']);
+
+        Tasks::create($validated + [
+            // Keep legacy string columns in sync (existing schema).
+            'creator' => $creator?->name,
+            'assigned_to' => $assignee?->name,
         ]);
 
-        Tasks::create($data);
-        return redirect()->route("tasks.index");
+        return redirect()
+            ->route("tasks.index")
+            ->with('success', 'Task created successfully.');
     }
 
-    public function show($id)
+    public function show(Tasks $task)
     {
-        $task = Tasks::findOrFail($id);
-        return view("tasks.show", ["task" => $task]);
+        $task->load(['creator', 'assignee', 'taskComments.user']);
+        $users = User::select('id', 'name')->get();
+
+        return view("tasks.show", compact('task', 'users'));
     }
 
-    public function edit($id)
+    public function edit(Tasks $task)
     {
-        $task = Tasks::findOrFail($id);
         $users = User::all();
         return view("tasks.edit", compact('task', 'users'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateTaskRequest $request, Tasks $task)
     {
-        $task = Tasks::findOrFail($id);
+        $validated = $request->validated();
+        $creator = User::find($validated['creator_id']);
+        $assignee = User::find($validated['assignee_id']);
 
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
-            'assigned_to' => 'nullable|string|max:255',
-            'due_date' => 'nullable|date',
-            'priority' => 'nullable|in:low,medium,high',
-            'status' => 'nullable|in:open,pending,reviewing,closed',
-            'board_column' => 'nullable|string|max:255',
+        $task->update($validated + [
+            // Keep legacy string columns in sync (existing schema).
+            'creator' => $creator?->name,
+            'assigned_to' => $assignee?->name,
         ]);
 
-        $task->update($data);
-        return redirect('/');
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Task updated successfully.');
     }
 
-    public function destroy($id)
+    public function destroy(Tasks $task)
     {
-        Tasks::findOrFail($id)->delete();
+        $task->delete();
+
         return redirect()->route("tasks.index");
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $task = Tasks::withTrashed()->findOrFail($id);
 
@@ -86,7 +90,7 @@ class TaskController extends Controller
         return redirect()->route("tasks.index");
     }
 
-    public function forceDelete($id)
+    public function forceDelete(int $id)
     {
         $task = Tasks::withTrashed()->findOrFail($id);
         $task->forceDelete();

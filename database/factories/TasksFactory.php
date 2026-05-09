@@ -20,7 +20,11 @@ class TasksFactory extends Factory
         return [
             'title' => fake()->sentence(4),
             'description' => fake()->paragraph(),
-            'user_id' => User::factory(),
+            'creator_id' => User::factory(),
+            'assignee_id' => User::factory(),
+            'due_date' => fake()->dateTimeBetween('now', '+1 month'),
+            'priority' => fake()->randomElement(['low', 'medium', 'high', 'urgent']),
+            'status' => fake()->randomElement(['to-do', 'in_progress', 'done']),
         ];
     }
 }
