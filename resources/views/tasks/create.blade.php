@@ -1,6 +1,10 @@
-@extends('layout.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Create Task') }}
+        </h2>
+    </x-slot>
 
-@section('content')
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card shadow-sm border-0">
@@ -8,7 +12,7 @@
                 <h4 class="fw-bold mb-1">Create New Task</h4>
                 <p class="text-muted mb-4">Plan your next todo with full details.</p>
 
-                <form method="POST" action="{{ route('tasks.store') }}">
+                <form method="POST" action="{{ route('tasks.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <div class="mb-3">
@@ -88,6 +92,17 @@
                         @enderror
                     </div>
 
+                    <div class="mb-4">
+                        <label for="images" class="form-label">Task Images (JPG/PNG)</label>
+                        <input type="file" id="images" name="images[]" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple class="form-control @error('images') is-invalid border-danger @enderror @error('images.*') is-invalid border-danger @enderror">
+                        @error('images')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        @error('images.*')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('tasks.index') }}" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">Create Task</button>
@@ -97,4 +112,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-app-layout>

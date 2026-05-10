@@ -24,6 +24,8 @@ class StoreTaskRequest extends FormRequest
             'status' => ['required', 'in:to-do,in_progress,done'],
             'creator_id' => ['required', 'exists:users,id'],
             'assignee_id' => ['required', 'exists:users,id'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpg,jpeg,png'],
         ];
     }
 
@@ -48,6 +50,9 @@ class StoreTaskRequest extends FormRequest
             'creator_id.exists' => 'The selected creator does not exist.',
             'assignee_id.required' => 'Assignee is required.',
             'assignee_id.exists' => 'The selected assignee does not exist.',
+            'images.array' => 'Images must be uploaded as a list of files.',
+            'images.*.image' => 'Each uploaded file must be an image.',
+            'images.*.mimes' => 'Only JPG and PNG images are allowed.',
         ];
     }
 }

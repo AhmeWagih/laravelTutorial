@@ -1,6 +1,10 @@
-@extends('layout.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Task') }}
+        </h2>
+    </x-slot>
 
-@section('content')
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card shadow-sm border-0">
@@ -10,10 +14,10 @@
                         <h4 class="fw-bold mb-1">Edit Task #{{ $task->id }}</h4>
                         <p class="text-muted mb-0">Update details for this todo item.</p>
                     </div>
-                    <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-outline-secondary btn-sm">View Task</a>
+                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-outline-secondary btn-sm">View Task</a>
                 </div>
 
-                <form method="POST" action="{{ route('tasks.update', $task->id) }}">
+                <form method="POST" action="{{ route('tasks.update', $task) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -96,6 +100,29 @@
                         @enderror
                     </div>
 
+                    <div class="mb-4">
+                        <label for="images" class="form-label">Replace Task Images (JPG/PNG)</label>
+                        <input type="file" id="images" name="images[]" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple class="form-control @error('images') is-invalid border-danger @enderror @error('images.*') is-invalid border-danger @enderror">
+                        <!-- <small class="text-muted">Uploading new images will remove old images for this task.</small> -->
+                        @error('images')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        @error('images.*')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    @if($task->taskImages->isNotEmpty())
+                        <div class="mb-4">
+                            <label class="form-label d-block">Current Images</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($task->taskImages as $image)
+                                    <img src="{{ $image->url }}" alt="Task image" class="img-thumbnail" style="width: 110px; height: 110px; object-fit: cover;">
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('tasks.index') }}" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">Update Task</button>
@@ -105,4 +132,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-app-layout>

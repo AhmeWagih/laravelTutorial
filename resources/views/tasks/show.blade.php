@@ -1,6 +1,10 @@
-@extends('layout.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Task Details') }}
+        </h2>
+    </x-slot>
 
-@section('content')
 @php
     $subtasks = is_array($task->subtasks) ? $task->subtasks : (is_string($task->subtasks) ? json_decode($task->subtasks, true) : []);
     $subtasks = is_array($subtasks) ? $subtasks : [];
@@ -19,7 +23,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('tasks.index') }}" class="btn btn-outline-secondary btn-sm">Back to Tasks</a>
         <div>
-            <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-outline-primary btn-sm">
+            <a href="{{ route('tasks.edit', $task) }}" class="btn btn-outline-primary btn-sm">
                 Edit
             </a>
         </div>
@@ -37,6 +41,17 @@
             <div class="bg-light rounded p-3 text-muted">
                 {{ $task->description ?? 'No description.' }}
             </div>
+
+            @if($task->taskImages->isNotEmpty())
+                <div class="mt-3">
+                    <h6 class="mb-2">Images</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($task->taskImages as $image)
+                                <img src="{{ $image->url }}" alt="Task image" class="img-thumbnail" style="width: 140px; height: 140px; object-fit: cover;">
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -109,7 +124,7 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <h5 class="mb-3">Comments</h5>
-            <form method="POST" action="{{ route('tasks.comments.store', $task->id) }}" class="mb-4">
+            <form method="POST" action="{{ route('tasks.comments.store', $task) }}" class="mb-4">
                 @csrf
                 <div class="mb-3">
                     <label for="user_id" class="form-label">Commenter</label>
@@ -151,4 +166,4 @@
     </div>
 </div>
 </div>
-@endsection
+</x-app-layout>
