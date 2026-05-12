@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-class TaskController extends Controller     
+class TaskController extends Controller
 {
     use UploadImageTrait;
 
@@ -37,10 +37,7 @@ class TaskController extends Controller
         $creator = User::find($validated['creator_id']);
         $assignee = User::find($validated['assignee_id']);
 
-        $task = Tasks::create($validated + [
-            'creator' => $creator?->name,
-            'assigned_to' => $assignee?->name,
-        ]);
+        $task = Tasks::create($validated);
 
         $this->storeTaskImages($task, $images);
 
@@ -72,10 +69,7 @@ class TaskController extends Controller
         $creator = User::find($validated['creator_id']);
         $assignee = User::find($validated['assignee_id']);
 
-        $task->update($validated + [
-            'creator' => $creator?->name,
-            'assigned_to' => $assignee?->name,
-        ]);
+        $task->update($validated);
 
         if (!empty($images)) {
             $this->deleteTaskImages($task);
@@ -117,7 +111,7 @@ class TaskController extends Controller
     private function storeTaskImages(Tasks $task, array $images): void
     {
         foreach ($images as $image) {
-            if (! $image instanceof UploadedFile) {
+            if (!$image instanceof UploadedFile) {
                 continue;
             }
 

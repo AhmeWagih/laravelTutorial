@@ -7,15 +7,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'github_id',
+        'google_id',
+        'github_username',
+        'github_avatar_url',
+        'google_avatar_url',
     ];
 
     protected $hidden = [
@@ -44,5 +50,12 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function usesPasswordCredential(): bool
+    {
+        $password = $this->attributes['password'] ?? null;
+
+        return is_string($password) && $password !== '';
     }
 }

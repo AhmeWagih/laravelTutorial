@@ -20,13 +20,18 @@ class Tasks extends Model
         'description',
         'creator_id',
         'assignee_id',
-        'creator',
-        'assigned_to',
         'due_date',
         'priority',
         'status',
         'board_column',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'due_date' => 'datetime',
+        ];
+    }
 
     public function sluggable(): array
     {
@@ -40,6 +45,19 @@ class Tasks extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if ($field !== null) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        if (ctype_digit((string) $value)) {
+            return $this->whereKey($value)->firstOrFail();
+        }
+
+        return $this->where('slug', $value)->firstOrFail();
     }
 
     public function creator(): BelongsTo

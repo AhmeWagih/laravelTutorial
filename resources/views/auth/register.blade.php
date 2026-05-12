@@ -49,4 +49,21 @@
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-6">
+        <p class="text-center text-xs text-gray-400 uppercase">{{ __('Or continue with') }}</p>
+
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <a href="{{ route('oauth.redirect', ['provider' => 'github']) }}" class="inline-flex justify-center">
+                <span class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-gray-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
+                    {{ __('GitHub') }}
+                </span>
+            </a>
+            <a href="{{ route('oauth.redirect', ['provider' => 'google']) }}" class="inline-flex justify-center">
+                <span class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    {{ __('Google') }}
+                </span>
+            </a>
+        </div>
+    </div>
 </x-guest-layout>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
@@ -7,11 +8,22 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/tasks');
 
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+    ->name('oauth.callback');
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+        ->name('oauth.redirect');
+});
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/auth/{provider}/connect', [SocialAuthController::class, 'redirect'])
+        ->name('oauth.connect');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
